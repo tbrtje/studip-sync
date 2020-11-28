@@ -133,7 +133,7 @@ class CourseRSync:
             self.log("Couldn't view the following folder because of missing permissions: " + folder_path_relative)
             return
 
-        # TODO: Sanitize session data !!!
+        form_data_files, form_data_folders = self.check_and_cleanup_form_data(form_data_files, form_data_folders)
 
         for file_data in form_data_files:
             folder_absolute = os.path.join(self.root_folder, folder_path_relative)

@@ -26,8 +26,11 @@ class ShibbolethLogin(LoginBase):
         with session.session.get(auth_type_data["login_url"]) as response:
             if not response.ok:
                 raise LoginError("Cannot access Stud.IP login page")
+            print("Login URL: " + response.url)
             sso_url_relative = ShibbolethLogin.extract_sso_url(response.text)
             sso_url = urllib.parse.urljoin(response.url, sso_url_relative)
+
+        print("SSO URL: " + sso_url)
 
         login_data = {
             "j_username": username,
@@ -37,6 +40,8 @@ class ShibbolethLogin(LoginBase):
         }
 
         with session.session.post(sso_url, data=login_data) as response:
+            print(response.url)
+            print(response.text)
             if not response.ok:
                 raise LoginError("Cannot access SSO server")
             elif "form-error" in response.text or "Login Failure" in response.text:
