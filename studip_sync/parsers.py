@@ -6,6 +6,7 @@ import urllib.parse
 from functools import wraps
 from bs4 import BeautifulSoup
 
+
 def log_html_on_exception():
     def decorator(func):
         @wraps(func)
@@ -14,7 +15,7 @@ def log_html_on_exception():
                 return func(html, *args, **kwargs)
             except Exception as e:
                 print(html)
-                
+
                 raise e
 
         return inner
@@ -84,7 +85,6 @@ def extract_files_flat_last_edit(html):
                     raise ParserError("last_edit: row doesn't have expected length of cells")
 
         raise ParserError("last_edit: Found no valid form")
-
 
     return try_parser_functions(html, [extract_json, extract_html_table])
 
@@ -250,8 +250,8 @@ def extract_media_best_download_link(html):
 
         return links[len(links) - 1]
 
-
-    return try_parser_functions(html, [extract_table, extract_iframe, extract_video, extract_video_regex])
+    return try_parser_functions(html, [extract_table, extract_iframe, extract_video,
+                                       extract_video_regex])
 
 
 @log_html_on_exception()

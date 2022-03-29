@@ -59,7 +59,7 @@ def get_url_and_auth_type():
     if selected_preset is not None:
         return selected_preset.base_url, selected_preset.auth_type, selected_preset.auth_data
 
-    # Otherwise ask for them interactively
+    # Otherwise, ask for them interactively
     base_url = input("URL of StudIP: ")
     auth_key, auth_type = choose_authentication_type()
     auth_data = auth_type.config_creator_get_auth_data()

@@ -40,7 +40,7 @@ class URL(object):
         return urllib.parse.urljoin(self.base_url, rel_url)
 
     def login_page(self):
-        return self.__relative_url("")
+        return self.__relative_url("index.php?again=yes")
 
     def files_main(self):
         return self.__relative_url("dispatch.php/course/files")
@@ -157,10 +157,9 @@ class Session(object):
             with open(tempfile, "wb") as file:
                 shutil.copyfileobj(response.raw, file)
 
-
     def download_file_api(self, file_id, tempfile):
         download_url = self.url.files_api_download(file_id)
-        
+
         with self.session.get(download_url, stream=True) as response:
             if not response.ok:
                 print(response.text)
@@ -200,7 +199,7 @@ class Session(object):
                 raise DownloadError("Cannot access course files/files_index page")
 
             res = json.loads(response.text)
-            
+
             return res["file_refs"], res["subfolders"]
 
     def download_media(self, course_id, media_workdir, course_save_as):
@@ -228,7 +227,7 @@ class Session(object):
             media_type = media_file["type"]
             media_player_url_relative = media_file["media_url"]
             media_player_url = urllib.parse.urljoin(mediacast_list_url,
-                                                       media_player_url_relative)
+                                                    media_player_url_relative)
 
             # files are saved as "{filename}-{hash}.{extension}"
             # older version might have used the format "{hash}-{filename}.{extension}"
@@ -239,7 +238,7 @@ class Session(object):
                 workdir_filename_split = workdir_filename.split("-")
 
                 if workdir_filename_split[0] == media_hash or \
-                        workdir_filename_split[-1].split(".")[0] == media_hash:
+                    workdir_filename_split[-1].split(".")[0] == media_hash:
                     found_existing_file = True
                     break
 
@@ -258,7 +257,7 @@ class Session(object):
                         response.text)
 
                     download_media_url = urllib.parse.urljoin(media_player_url,
-                                                                 download_media_url_relative)
+                                                              download_media_url_relative)
             elif media_type == "direct_download":
                 download_media_url = media_player_url
             else:

@@ -66,11 +66,12 @@ class StudipSync(object):
             status_code = 0
             for i in range(0, len(courses)):
                 course = courses[i]
-                print("{}) {}: {}".format(i+1, course["semester"], course["save_as"]))
+                print("{}) {}: {}".format(i + 1, course["semester"], course["save_as"]))
 
                 if self.files_destination_dir:
                     try:
-                        if sync_fully or session.check_course_new_files(course["course_id"], CONFIG.last_sync):
+                        if sync_fully or session.check_course_new_files(course["course_id"],
+                                                                        CONFIG.last_sync):
                             print("\tDownloading files...")
                             zip_location = session.download(
                                 course["course_id"], self.download_dir, course.get("sync_only"))
@@ -91,9 +92,11 @@ class StudipSync(object):
                     try:
                         print("\tSyncing media files...")
 
-                        media_course_dir = os.path.join(self.media_destination_dir, course["save_as"])
+                        media_course_dir = os.path.join(self.media_destination_dir,
+                                                        course["save_as"])
 
-                        session.download_media(course["course_id"], media_course_dir, course["save_as"])
+                        session.download_media(course["course_id"], media_course_dir,
+                                               course["save_as"])
                     except MissingFeatureError:
                         # Ignore if there is no media
                         pass

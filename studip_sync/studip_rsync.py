@@ -124,7 +124,8 @@ def check_and_cleanup_form_data(form_data_files, form_data_folders, use_api):
                 raise ParserError("id is not hexadecimal")
 
             # TODO: support links by saving them as .url files
-            if "size" not in form_data or form_data["size"] is None or ("icon" in form_data and form_data["icon"] == "link-extern"):
+            if "size" not in form_data or form_data["size"] is None or (
+                "icon" in form_data and form_data["icon"] == "link-extern"):
                 if ARGS.v:
                     print("[Debug] " + str(form_data))
                 log("Found unsupported file: {}".format(form_data["name"]))
@@ -135,7 +136,8 @@ def check_and_cleanup_form_data(form_data_files, form_data_folders, use_api):
                 continue
 
             new_file_data = {
-                "name": unicodedata.normalize(UNICODE_NORMALIZE_MODE, form_data["name"]).replace("/", "--"),
+                "name": unicodedata.normalize(UNICODE_NORMALIZE_MODE, form_data["name"]).replace(
+                    "/", "--"),
                 "id": form_id,
                 "size": int(form_data["size"]),
                 "chdate": int(form_data["chdate"])
@@ -157,7 +159,8 @@ def check_and_cleanup_form_data(form_data_files, form_data_folders, use_api):
                 raise ValueError("id is not hexadecimal")
 
             form_data_folders_new.append({
-                "name": unicodedata.normalize(UNICODE_NORMALIZE_MODE, form_data["name"]).replace("/", "--"),
+                "name": unicodedata.normalize(UNICODE_NORMALIZE_MODE, form_data["name"]).replace(
+                    "/", "--"),
                 "id": form_id
             })
         except Exception as e:
@@ -176,9 +179,8 @@ def log(message, flush=False):
 
 def is_file_new(file, file_path):
     if not file["size"]:
-        # If there is no size, skip this file, since it cant be downloaded
+        # If there is no size, skip this file, since it can't be downloaded
         return False
-
 
     if not os.path.exists(file_path):
         log("File changed: new: {}".format(file_path))
@@ -238,17 +240,19 @@ class CourseRSync:
     def download_recursive(self, folder_id=None, folder_path_relative=""):
         try:
             if self.use_api:
-                form_data_files, form_data_folders = self.session.get_files_index_from_api(self.course_id,
-                                                                              folder_id)
+                form_data_files, form_data_folders = self.session.get_files_index_from_api(
+                    self.course_id,
+                    folder_id)
             else:
                 form_data_files, form_data_folders = self.session.get_files_index(self.course_id,
-                                                                              folder_id)
+                                                                                  folder_id)
         except MissingPermissionFolderError:
             log("Couldn't view the following folder because of missing permissions: " + folder_path_relative)
             return
 
         form_data_files, form_data_folders = check_and_cleanup_form_data(form_data_files,
-                                                                         form_data_folders, self.use_api)
+                                                                         form_data_folders,
+                                                                         self.use_api)
 
         for file_data in form_data_files:
             folder_absolute = os.path.join(self.root_folder, folder_path_relative)
