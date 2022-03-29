@@ -9,20 +9,6 @@ if ARGS.init:
         creator.new_config()
     exit()
 
-from studip_sync.plugins.plugin_helper import PluginHelper
-
-if ARGS.enable_plugin:
-    with PluginHelper(ARGS.enable_plugin) as plugin_helper:
-        exit(plugin_helper.enable())
-
-if ARGS.reconfigure_plugin:
-    with PluginHelper(ARGS.reconfigure_plugin) as plugin_helper:
-        exit(plugin_helper.reconfigure())
-
-if ARGS.disable_plugin:
-    with PluginHelper(ARGS.disable_plugin) as plugin_helper:
-        exit(plugin_helper.disable())
-
 if ARGS.old:
     from studip_sync.studip_sync import StudipSync
     with StudipSync() as s:

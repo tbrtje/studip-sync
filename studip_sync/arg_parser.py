@@ -25,16 +25,6 @@ def parse_args():
     parser.add_argument("--old", action="store_true",
                         help="use older sync client which downloads files in bulk")
 
-    # PLUGINS
-    parser.add_argument("--enable-plugin", metavar="PLUGIN",
-                        help="enables and configures a plugin")
-
-    parser.add_argument("--reconfigure-plugin", metavar="PLUGIN",
-                        help="reconfigures a already-enabled plugin")
-
-    parser.add_argument("--disable-plugin", metavar="PLUGIN",
-                        help="disables a plugin")
-
     parser.add_argument("-v", action="store_true",
                         help="show debug output")
 
