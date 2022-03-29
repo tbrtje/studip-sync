@@ -26,9 +26,9 @@ class Config(JSONConfig):
         super(Config, self).__init__(config_path)
 
     def _check(self):
-        if not self.files_destination and not self.media_destination:
+        if not self.files_destination:
             raise ConfigError(
-                "Both target directories are missing. You can specify the target directories "
+                "Target directory is missing. You can specify the target directory "
                 "via the commandline or the JSON config file!")
 
         if not self.username:
@@ -147,18 +147,6 @@ class Config(JSONConfig):
             files_destination = self.config.get("files_destination", "")
 
         return os.path.expanduser(files_destination)
-
-    @property
-    def media_destination(self):
-        if self.args.media is not None:
-            media_destination = self.args.media
-        else:
-            if not self.config:
-                return None
-
-            media_destination = self.config.get("media_destination", "")
-
-        return os.path.expanduser(media_destination)
 
     @property
     def use_new_file_structure(self):

@@ -93,7 +93,6 @@ class ConfigCreator(object):
 
         save_password = input("Save password (in clear text)? [y/N]: ").lower() in ("y", "yes")
         files_destination = input("Sync files to directory (leave empty to disable): ")
-        media_destination = input("Sync media to directory (leave empty to disable): ")
 
         config = {
             "user": {
@@ -115,9 +114,6 @@ class ConfigCreator(object):
 
         if files_destination:
             config["files_destination"] = files_destination
-
-        if media_destination:
-            config["media_destination"] = media_destination
 
         path = get_config_file()
 

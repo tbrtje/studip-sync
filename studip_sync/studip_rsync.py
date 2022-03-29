@@ -21,14 +21,11 @@ class StudIPRSync(object):
         super(StudIPRSync, self).__init__()
         self.workdir = tempfile.mkdtemp(prefix="studip-sync")
         self.files_destination_dir = CONFIG.files_destination
-        self.media_destination_dir = CONFIG.media_destination
 
         if self.files_destination_dir:
             os.makedirs(self.files_destination_dir, exist_ok=True)
-        if self.media_destination_dir:
-            os.makedirs(self.media_destination_dir, exist_ok=True)
 
-    def sync(self, sync_fully=False, sync_recent=False, use_api=False):
+    def sync(self, sync_fully=False, sync_recent=False):
         PLUGINS.hook("hook_start")
 
         with Session(base_url=CONFIG.base_url, plugins=PLUGINS) as session:
@@ -65,7 +62,7 @@ class StudIPRSync(object):
                         files_root_dir = os.path.join(self.files_destination_dir, course_save_as)
 
                         CourseRSync(session, self.workdir, files_root_dir, course,
-                                    sync_fully, use_api).download()
+                                    sync_fully).download()
                     except MissingFeatureError:
                         # Ignore if there are no files
                         pass
@@ -73,29 +70,6 @@ class StudIPRSync(object):
                         print("\tDownload of files failed: " + str(e))
                         status_code = 2
                         raise e
-
-                if self.media_destination_dir:
-                    try:
-                        print("\tSyncing media files...")
-
-                        media_root_dir = os.path.join(self.media_destination_dir,
-                                                      course_save_as)
-
-                        session.download_media(course["course_id"], media_root_dir,
-                                               course["save_as"])
-                    except MissingFeatureError:
-                        # Ignore if there is no media
-                        pass
-                    except DownloadError as e:
-                        print("\tDownload of media failed: " + str(e))
-                        status_code = 2
-                        raise e
-                    except ParserError as e:
-                        print("\tDownload of media failed: " + str(e))
-                        if status_code != 0:
-                            raise e
-                        else:
-                            status_code = 2
 
         if self.files_destination_dir and status_code == 0:
             CONFIG.update_last_sync(int(time.time()))
@@ -115,7 +89,7 @@ class StudIPRSync(object):
 UNICODE_NORMALIZE_MODE = "NFKC"
 
 
-def check_and_cleanup_form_data(form_data_files, form_data_folders, use_api):
+def check_and_cleanup_form_data(form_data_files, form_data_folders):
     form_data_files_new = []
     for form_data in form_data_files:
         try:
@@ -131,20 +105,10 @@ def check_and_cleanup_form_data(form_data_files, form_data_folders, use_api):
                 log("Found unsupported file: {}".format(form_data["name"]))
                 continue
 
-            if use_api and "is_downloadable" in form_data and not form_data["is_downloadable"]:
-                log("Skipped file that can't be downloaded: {}".format(form_data["name"]))
-                continue
-
             new_file_data = {
                 "name": unicodedata.normalize(UNICODE_NORMALIZE_MODE, form_data["name"]).replace(
-                    "/", "--"),
-                "id": form_id,
-                "size": int(form_data["size"]),
-                "chdate": int(form_data["chdate"])
-            }
-
-            if not use_api:
-                new_file_data["download_url"] = form_data["download_url"]
+                    "/", "--"), "id": form_id, "size": int(form_data["size"]),
+                "chdate": int(form_data["chdate"]), "download_url": form_data["download_url"]}
 
             form_data_files_new.append(new_file_data)
         except Exception as e:
@@ -215,14 +179,13 @@ def get_course_save_as(course):
 
 class CourseRSync:
 
-    def __init__(self, session, workdir, root_folder, course, sync_fully, use_api):
+    def __init__(self, session, workdir, root_folder, course, sync_fully):
         self.session = session
         self.workdir = workdir
         self.course_id = course["course_id"]
         self.course_save_as = course["save_as"]
         self.root_folder = root_folder
         self.sync_fully = sync_fully
-        self.use_api = use_api
 
     def download(self):
         if self.course_has_new_files(self.sync_fully):
@@ -239,20 +202,16 @@ class CourseRSync:
 
     def download_recursive(self, folder_id=None, folder_path_relative=""):
         try:
-            if self.use_api:
-                form_data_files, form_data_folders = self.session.get_files_index_from_api(
-                    self.course_id,
-                    folder_id)
-            else:
-                form_data_files, form_data_folders = self.session.get_files_index(self.course_id,
-                                                                                  folder_id)
+            form_data_files, form_data_folders = self.session.get_files_index(self.course_id,
+                                                                              folder_id)
         except MissingPermissionFolderError:
-            log("Couldn't view the following folder because of missing permissions: " + folder_path_relative)
+            log("Couldn't view the following folder because of missing permissions: " +
+                folder_path_relative)
             return
 
         form_data_files, form_data_folders = check_and_cleanup_form_data(form_data_files,
-                                                                         form_data_folders,
-                                                                         self.use_api)
+                                                                         form_data_folders
+                                                                         )
 
         for file_data in form_data_files:
             folder_absolute = os.path.join(self.root_folder, folder_path_relative)
@@ -261,11 +220,7 @@ class CourseRSync:
                 log("Downloading: {}: {}".format(file_data["id"], file_data["name"]))
 
                 target_file = os.path.join(self.workdir, file_data["id"])
-
-                if not self.use_api:
-                    self.session.download_file(file_data["download_url"], target_file)
-                else:
-                    self.session.download_file_api(file_data["id"], target_file)
+                self.session.download_file(file_data["download_url"], target_file)
 
                 file_size = int(file_data["size"])
                 target_file_size = os.path.getsize(target_file)

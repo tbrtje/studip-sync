@@ -26,14 +26,11 @@ class StudipSync(object):
         self.download_dir = os.path.join(self.workdir, "zips")
         self.extract_dir = os.path.join(self.workdir, "extracted")
         self.files_destination_dir = CONFIG.files_destination
-        self.media_destination_dir = CONFIG.media_destination
 
         os.makedirs(self.download_dir)
         os.makedirs(self.extract_dir)
         if self.files_destination_dir:
             os.makedirs(self.files_destination_dir, exist_ok=True)
-        if self.media_destination_dir:
-            os.makedirs(self.media_destination_dir, exist_ok=True)
 
     def sync(self, sync_fully=False, sync_recent=False):
         PLUGINS.hook("hook_start")
@@ -87,28 +84,6 @@ class StudipSync(object):
                     except ExtractionError as e:
                         print("\tExtracting files failed: " + str(e))
                         status_code = 2
-
-                if self.media_destination_dir:
-                    try:
-                        print("\tSyncing media files...")
-
-                        media_course_dir = os.path.join(self.media_destination_dir,
-                                                        course["save_as"])
-
-                        session.download_media(course["course_id"], media_course_dir,
-                                               course["save_as"])
-                    except MissingFeatureError:
-                        # Ignore if there is no media
-                        pass
-                    except DownloadError as e:
-                        print("\tDownload of media failed: " + str(e))
-                        status_code = 2
-                    except ParserError as e:
-                        print("\tDownload of media failed: " + str(e))
-                        if status_code != 0:
-                            raise e
-                        else:
-                            status_code = 2
 
         if self.files_destination_dir:
             print("Synchronizing with existing files...")

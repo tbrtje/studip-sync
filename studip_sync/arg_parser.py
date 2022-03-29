@@ -13,9 +13,6 @@ def parse_args():
                         help="synchronize files to the given destination directory (If no config "
                              "is present this argument implies --full)")
 
-    parser.add_argument("-m", "--media", metavar="DIR", default=None,
-                        help="synchronize media to the given destination directory")
-
     parser.add_argument("--init", action="store_true",
                         help="create new config file interactively")
 
@@ -27,9 +24,6 @@ def parse_args():
 
     parser.add_argument("--old", action="store_true",
                         help="use older sync client which downloads files in bulk")
-
-    parser.add_argument("--use-api", action="store_true",
-                        help="use new api endpoint to download and discover files")
 
     # PLUGINS
     parser.add_argument("--enable-plugin", metavar="PLUGIN",
