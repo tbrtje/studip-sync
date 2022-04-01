@@ -22,9 +22,6 @@ def parse_args():
     parser.add_argument("--recent", action="store_true",
                         help="only download the courses of the recent semester")
 
-    parser.add_argument("--old", action="store_true",
-                        help="use older sync client which downloads files in bulk")
-
     parser.add_argument("-v", action="store_true",
                         help="show debug output")
 

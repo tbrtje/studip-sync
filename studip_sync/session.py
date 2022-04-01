@@ -7,7 +7,6 @@ import requests
 
 from studip_sync import parsers
 from studip_sync.constants import URL_BASEURL_DEFAULT, AUTHENTICATION_TYPES
-from studip_sync.plugins.plugin_list import PluginList
 
 
 class SessionError(Exception):
@@ -66,11 +65,6 @@ class Session(object):
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": "WeWantFileSync"})
         self.url = URL(base_url)
-
-        if plugins is None:
-            self.plugins = PluginList()
-        else:
-            self.plugins = plugins
 
     def __enter__(self):
         return self

@@ -9,7 +9,6 @@ import string
 from studip_sync.arg_parser import ARGS
 from studip_sync.config import CONFIG
 from studip_sync.logins import LoginError
-from studip_sync.plugins.plugins import PLUGINS
 from studip_sync.session import Session, DownloadError, MissingFeatureError, \
     MissingPermissionFolderError
 from studip_sync.parsers import ParserError
@@ -26,9 +25,8 @@ class StudIPRSync(object):
             os.makedirs(self.files_destination_dir, exist_ok=True)
 
     def sync(self, sync_fully=False, sync_recent=False):
-        PLUGINS.hook("hook_start")
 
-        with Session(base_url=CONFIG.base_url, plugins=PLUGINS) as session:
+        with Session(base_url=CONFIG.base_url) as session:
             print("Logging in...")
             try:
                 session.login(CONFIG.auth_type, CONFIG.auth_type_data, CONFIG.username,
@@ -243,9 +241,6 @@ class CourseRSync:
                                         file_path)
 
                 shutil.copyfile(target_file, file_path)
-
-                self.session.plugins.hook("hook_file_download_successful", file_data["name"],
-                                          self.course_save_as, file_path)
 
         for folder_data in form_data_folders:
             new_folder_path_relative = os.path.join(folder_path_relative, folder_data["name"])
